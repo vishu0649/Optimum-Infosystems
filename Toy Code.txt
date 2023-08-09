@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<?php
+
+    class Robott {
+    private $x;
+    private $y;
+    private $facing;
+
+    private $directions = ['NORTH', 'EAST', 'SOUTH', 'WEST'];
+
+    public function place($x, $y, $facing) {
+        if ($this->isValidPosition($x, $y) && in_array($facing, $this->directions)) {
+            $this->x = $x;
+            $this->y = $y;
+            $this->facing = $facing;
+        }
+    }
+
+    public function move() {
+        $newX = $this->x;
+        $newY = $this->y;
+
+        if ($this->facing === 'NORTH') {
+            $newY++;
+        } elseif ($this->facing === 'EAST') {
+            $newX++;
+        } elseif ($this->facing === 'SOUTH') {
+            $newY--;
+        } elseif ($this->facing === 'WEST') {
+            $newX--;
+        }
+
+        if ($this->isValidPosition($newX, $newY)) {
+            $this->x = $newX;
+            $this->y = $newY;
+        }
+    }
+
+    public function move_left() {
+        $currentIndex = array_search($this->facing, $this->directions);
+        $newIndex = ($currentIndex + 3) % 4;
+        $this->facing = $this->directions[$newIndex];
+    }
+
+    public function move_right() {
+        $currentIndex = array_search($this->facing, $this->directions);
+        $newIndex = ($currentIndex + 1) % 4;
+        $this->facing = $this->directions[$newIndex];
+    }
+
+    public function show() {
+        echo "Output: $this->x,$this->y,$this->facing\n";
+    }
+
+    private function isValidPosition($x, $y) {
+        return $x >= 0 && $x < 5 && $y >= 0 && $y < 5;
+    }
+    
+    public function processCommands(array $commands) {
+        foreach ($commands as $command) {
+            $parts = explode(' ', $command);
+            $action = $parts[0];
+            
+            if ($action === 'PLACE') {
+                $args = explode(',', $parts[1]);
+                $x = intval($args[0]);
+                $y = intval($args[1]);
+                $facing = $args[2];
+                $this->place($x, $y, $facing);
+            } elseif ($action === 'MOVE') {
+                $this->move();
+            } elseif ($action === 'LEFT') {
+                $this->move_left();
+            } elseif ($action === 'RIGHT') {
+                $this->move_right();
+            } elseif ($action === 'REPORT') {
+                $this->show();
+            }
+        }
+    }
+}
+
+$robot = new Robott();
+$commands = [
+   'PLACE 1,2,EAST',
+'MOVE',
+'MOVE',
+'LEFT',
+'MOVE',
+'REPORT'
+];
+$robot->processCommands($commands);
+
+
+?>
+
+
+</body>
+</html>
